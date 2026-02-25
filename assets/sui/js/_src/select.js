@@ -107,11 +107,24 @@
 			// Validate URL to prevent XSS attacks
 			if ( val && typeof val === 'string' ) {
 				var trimmedVal = val.trim();
-				// Only allow http://, https://, or hash anchors at the start
-				if ( /^(https?:\/\/|#)/.test( trimmedVal ) ) {
-					// Additional safety check: ensure no javascript: or data: protocols
-					if ( !/^(javascript|data|vbscript):/i.test( trimmedVal ) ) {
-						window.location.href = trimmedVal;
+				
+				// Handle hash anchors (same page navigation)
+				if ( /^#/.test( trimmedVal ) ) {
+					window.location.hash = trimmedVal;
+					return;
+				}
+				
+				// Validate and navigate to external URLs
+				if ( /^https?:\/\//.test( trimmedVal ) ) {
+					try {
+						// Use URL constructor for validation
+						var url = new URL( trimmedVal );
+						// Only allow http and https protocols
+						if ( url.protocol === 'http:' || url.protocol === 'https:' ) {
+							window.location.assign( url.href );
+						}
+					} catch (e) {
+						// Invalid URL, do nothing
 					}
 				}
 			}
