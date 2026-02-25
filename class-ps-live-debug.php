@@ -1,16 +1,17 @@
 <?php //phpcs:ignore
 /**
  *
- * Plugin Name: PS-Debug-Tool
- * Plugin URI: https://cp-psource.github.io/ps-live-debug/
+ * Plugin Name: PSOURCE Live Debug
+ * Plugin URI: https://power-source.github.io/ps-live-debug/
  * Description: Aktiviert das Debuggen und fügt dem ClassicPress-Admin einen Bildschirm hinzu, um das debug.log anzuzeigen.
  * Version: 1.0.0
  * Author: PSOURCE
- * Author URI: https://github.com/cp-psource
+ * Author URI: https://github.com/Power-Source
  * License: GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain: ps-live-debug
  * Domain Path: /languages
+ * PS Network: required
  *
  */
 
@@ -30,42 +31,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-// PS Update Manager - Hinweis wenn nicht installiert
-add_action( 'admin_notices', function() {
-    // Prüfe ob Update Manager aktiv ist
-    if ( ! function_exists( 'ps_register_product' ) && current_user_can( 'install_plugins' ) ) {
-        $screen = get_current_screen();
-        if ( $screen && in_array( $screen->id, array( 'plugins', 'plugins-network' ) ) ) {
-            // Prüfe ob bereits installiert aber inaktiv
-            $plugin_file = 'ps-update-manager/ps-update-manager.php';
-            $all_plugins = get_plugins();
-            $is_installed = isset( $all_plugins[ $plugin_file ] );
-            
-            echo '<div class="notice notice-warning is-dismissible"><p>';
-            echo '<strong>PS Chat:</strong> ';
-            
-            if ( $is_installed ) {
-                // Installiert aber inaktiv - Aktivierungs-Link
-                $activate_url = wp_nonce_url(
-                    admin_url( 'plugins.php?action=activate&plugin=' . urlencode( $plugin_file ) ),
-                    'activate-plugin_' . $plugin_file
-                );
-                echo sprintf(
-                    __( 'Aktiviere den <a href="%s">PS Update Manager</a> für automatische Updates von GitHub.', 'psource-chat' ),
-                    esc_url( $activate_url )
-                );
-            } else {
-                // Nicht installiert - Download-Link
-                echo sprintf(
-                    __( 'Installiere den <a href="%s" target="_blank">PS Update Manager</a> für automatische Updates aller PSource Plugins & Themes.', 'psource-chat' ),
-                    'https://github.com/Power-Source/ps-update-manager/releases/latest'
-                );
-            }
-            
-            echo '</p></div>';
-        }
-    }
-});
 
 /**************************************************/
 /****************** Plugin Start ******************/
@@ -109,6 +74,7 @@ if ( ! class_exists( 'PS_Live_Debug' ) ) {
 		 */
 		public function init() {
 			add_action( 'init', array( 'PS_Live_Debug', 'create_menus' ) );
+			add_action( 'wp_default_scripts', array( 'PS_Live_Debug', 'remove_jquery_ui_scripts' ), 10 );
 			add_action( 'admin_enqueue_scripts', array( 'PS_Live_Debug', 'enqueue_scripts_styles' ) );
 			add_action( 'wp_ajax_ps-live-debug-accept-risk', array( 'PS_Live_Debug', 'accept_risk' ) );
 		}
@@ -239,6 +205,49 @@ if ( ! class_exists( 'PS_Live_Debug' ) ) {
 					true
 				);
 				add_filter( 'admin_body_class', array( 'PS_Live_Debug', 'admin_body_classes' ) );
+			}
+		}
+
+		/**
+		 * Remove jQuery UI scripts from WordPress registry.
+		 * Prevents deprecated jQuery UI warnings in ClassicPress 2.2.0+.
+		 *
+		 * @param WP_Scripts $scripts The WP_Scripts object.
+		 *
+		 * @return void
+		 */
+		public static function remove_jquery_ui_scripts( $scripts ) {
+			// List of jQuery UI scripts to remove from the registry
+			$ui_scripts = array(
+				'jquery-ui',
+				'jquery-ui-core',
+				'jquery-ui-menu',
+				'jquery-ui-position',
+				'jquery-ui-widget',
+				'jquery-ui-mouse',
+				'jquery-ui-draggable',
+				'jquery-ui-droppable',
+				'jquery-ui-resizable',
+				'jquery-ui-selectable',
+				'jquery-ui-sortable',
+				'jquery-ui-accordion',
+				'jquery-ui-autocomplete',
+				'jquery-ui-button',
+				'jquery-ui-datepicker',
+				'jquery-ui-dialog',
+				'jquery-ui-slider',
+				'jquery-ui-tabs',
+				'jquery-ui-progressbar',
+				'jquery-ui-spinbutton',
+				'jquery-ui-tooltip',
+				'jquery-ui-spinner',
+			);
+
+			// Remove all jQuery UI scripts before they can be enqueued
+			foreach ( $ui_scripts as $script_handle ) {
+				if ( isset( $scripts->registered[ $script_handle ] ) ) {
+					unset( $scripts->registered[ $script_handle ] );
+				}
 			}
 		}
 

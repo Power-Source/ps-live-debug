@@ -64,7 +64,9 @@
 
 					if ( opt.data( 'content' ) ) {
 						item.addClass( 'sui-element-flex' );
-						item.html( '<span>' + opt.text() + '</span><span>' + opt.data( 'content' ) + '</span>' );
+						var span1 = $( '<span></span>' ).text( opt.text() );
+						var span2 = $( '<span></span>' ).text( opt.data( 'content' ) );
+						item.empty().append( span1, span2 );
 					} else {
 						item.text( opt.text() );
 					}
@@ -78,7 +80,7 @@
                     optGroupItem = $( '<ul></ul>' ).appendTo( items );
                     $label = $( '<li class="optgroup-label"></li>' ).text( optgroup.prop( 'label' ) );
 
-                    optGroupItem.html( $label );
+					optGroupItem.empty().append( $label );
                     optGroupItem.addClass( 'optgroup' );
 
                     optgroup.find( 'option' ).each( function onPopulateLoop() {
@@ -174,7 +176,7 @@
 			value.on( 'click', stateToggle );
 			jq.on( 'focus', stateOpen );
 
-			$( document ).click( function onOutsideClick( ev ) {
+			$( document ).on( 'click', function onOutsideClick( ev ) {
 				var jq = $( ev.target ),
 					selectID;
 

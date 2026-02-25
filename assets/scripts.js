@@ -122,7 +122,7 @@
 			}
 		} );
 	};
-	sslForm.submit( function( e ) {
+	sslForm.on( 'submit', function( e ) {
 		e.preventDefault();
 		sslResponse.html( '<i class="sui-icon-loader sui-loading" aria-hidden="true"></i>' );
 		runSSLCheck();
@@ -180,7 +180,7 @@
 		} );
 	}
 	// Mail Check
-	mailCheckForm.submit( function( e ) {
+	mailCheckForm.on( 'submit', function( e ) {
 		var email = $( '#ps-live-debug-mail-check #email' ).val(),
 			emailSubject = $( '#ps-live-debug-mail-check #email_subject' ).val(),
 			emailMessage = $( '#ps-live-debug-mail-check #email_message' ).val(),
@@ -229,6 +229,17 @@
 	}
 	// Debug View
 	if ( debugArea.length ) {
+		// Restore auto-refresh toggle state from localStorage
+		var autoRefreshEnabled = localStorage.getItem( 'ps-live-debug-auto-refresh' );
+		if ( autoRefreshEnabled === 'true' ) {
+			refreshToggle.prop( 'checked', true );
+		}
+		
+		// Save toggle state when changed
+		refreshToggle.on( 'change', function() {
+			localStorage.setItem( 'ps-live-debug-auto-refresh', $( this ).is( ':checked' ) );
+		} );
+		
 		// Make the initial debug.log read.
 		$.post( ajaxurl, refreshData, function( response ) {
 			debugArea.html( response );
