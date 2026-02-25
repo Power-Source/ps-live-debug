@@ -1904,8 +1904,16 @@
 			var val = jq[0].value;
 
 			// If option is link, navigate to it.
-			if ( val.match( '^https?:\/\/|#' ) ) {
-				window.location.href = val;
+			// Validate URL to prevent XSS attacks
+			if ( val && typeof val === 'string' ) {
+				var trimmedVal = val.trim();
+				// Only allow http://, https://, or hash anchors at the start
+				if ( /^(https?:\/\/|#)/.test( trimmedVal ) ) {
+					// Additional safety check: ensure no javascript: or data: protocols
+					if ( !/^(javascript|data|vbscript):/i.test( trimmedVal ) ) {
+						window.location.href = trimmedVal;
+					}
+				}
 			}
 		}
 
