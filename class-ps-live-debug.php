@@ -4,7 +4,7 @@
  * Plugin Name: PSOURCE Live Debug
  * Plugin URI: https://power-source.github.io/ps-live-debug/
  * Description: Aktiviert das Debuggen und fügt dem ClassicPress-Admin einen Bildschirm hinzu, um das debug.log anzuzeigen.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: PSOURCE
  * Author URI: https://github.com/Power-Source
  * License: GPL-2.0+
@@ -44,7 +44,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Define the plugin version for internal use
  */
-define( 'PS_LIVE_DEBUG_VERSION', '1.0.0' );
+define( 'PS_LIVE_DEBUG_VERSION', '1.0.1' );
 define( 'PS_LIVE_DEBUG_WP_CONFIG', ABSPATH . 'wp-config.php' );
 define( 'PS_LIVE_DEBUG_WP_CONFIG_BACKUP_ORIGINAL', ABSPATH . 'wp-config.wpld-original-backup.php' );
 define( 'PS_LIVE_DEBUG_WP_CONFIG_BACKUP', ABSPATH . 'wp-config.wpld-manual-backup.php' );
