@@ -2,7 +2,8 @@
 Contributors: PSOURCE
 Tags: debug, classicpress, wordpress, psource
 Requires at least: 4.9
-Tested up to: Wordpress 6.8.1, ClassicPress 2.6.0
+Tested up to: Wordpress 6.8.1
+ClassicPress: 2.6.0
 Stable tag: 1.0.2
 Requires PHP: 7.0
 License: GPLv2 or later
