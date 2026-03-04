@@ -313,7 +313,7 @@ if ( ! class_exists( 'PS_Live_Debug_Live_Debug' ) ) {
 
 			PS_Live_Debug_Live_Debug::enable_wp_debug_log();
 			PS_Live_Debug_Live_Debug::disable_wp_debug_display();
-			PS_Live_Debug_Live_Debug::disable_wp_debug_ini_set_display();
+			// PS_Live_Debug_Live_Debug::disable_wp_debug_ini_set_display(); // Deaktiviert - unterdrückt Fehleranzeige
 
 			$response = array(
 				'message' => esc_html__( 'WP_DEBUG was enabled.', 'ps-live-debug' ),
@@ -352,7 +352,7 @@ if ( ! class_exists( 'PS_Live_Debug_Live_Debug' ) ) {
 
 			PS_Live_Debug_Live_Debug::disable_wp_debug_log();
 			PS_Live_Debug_Live_Debug::disable_wp_debug_display();
-			PS_Live_Debug_Live_Debug::disable_wp_debug_ini_set_display();
+			// PS_Live_Debug_Live_Debug::disable_wp_debug_ini_set_display(); // Deaktiviert - unterdrückt Fehleranzeige
 
 			$response = array(
 				'message' => esc_html__( 'WP_DEBUG was disabled.', 'ps-live-debug' ),
