@@ -60,12 +60,13 @@ if ( ! class_exists( 'PS_Live_Debug_Live_Debug' ) ) {
 		 */
 		public static function create_page() {
 			$option_log_name = wp_normalize_path( get_option( 'PS_LIVE_DEBUG_log_file' ) );
+			$debug_contents  = self::get_debug_log_contents();
 			?>
 				<div class="sui-box">
-					<div class="sui-box-body">
+					<div class="sui-box-body ps-live-debug-log-viewer">
 						<div class="sui-form-field">
 							<label for="ps-live-debug-area" class="sui-label"><?php echo esc_html__( 'Ansicht', 'ps-live-debug' ) . ': ' . $option_log_name; ?></label>
-							<textarea id="ps-live-debug-area" name="ps-live-debug-area" class="sui-form-control"></textarea>
+							<textarea id="ps-live-debug-area" name="ps-live-debug-area" class="sui-form-control" readonly><?php echo esc_textarea( $debug_contents ); ?></textarea>
 						</div>
 						<?php
 						$path = wp_normalize_path( ABSPATH );
@@ -94,24 +95,24 @@ if ( ! class_exists( 'PS_Live_Debug_Live_Debug' ) ) {
 							?>
 						</select>
 					</div>
-					<div class="sui-box-body">
-						<div class="sui-row">
+					<div class="sui-box-body ps-live-debug-controls">
+						<div id="wp-debug-response-holder" class="ps-live-debug-status" role="status" aria-live="polite" hidden></div>
+						<div class="sui-row ps-live-debug-actions">
 							<div class="sui-col-md-4 sui-col-lg-4 text-center">
-									<button id="ps-live-debug-clear" data-log="<?php echo $option_log_name; ?>" data-nonce="<?php echo wp_create_nonce( $option_log_name ); ?>" type="button" class="sui-button sui-button-primary"><i class="sui-icon-loader sui-loading" aria-hidden="true"></i> <?php esc_html_e( 'Log leeren', 'ps-live-debug' ); ?></button>
+									<button id="ps-live-debug-clear" data-log="<?php echo esc_attr( $option_log_name ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( $option_log_name ) ); ?>" type="button" class="sui-button sui-button-primary"><i class="sui-icon-loader sui-loading" aria-hidden="true"></i> <?php esc_html_e( 'Log leeren', 'ps-live-debug' ); ?></button>
 							</div>
 							<div class="sui-col-md-4 sui-col-lg-4 text-center">
-									<button id="ps-live-debug-delete" data-log="<?php echo $option_log_name; ?>" data-nonce="<?php echo wp_create_nonce( $option_log_name ); ?>" type="button" class="sui-button sui-button-red"><i class="sui-icon-loader sui-loading" aria-hidden="true"></i> <?php esc_html_e( 'Log löschen', 'ps-live-debug' ); ?></button>
+									<button id="ps-live-debug-delete" data-log="<?php echo esc_attr( $option_log_name ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( $option_log_name ) ); ?>" type="button" class="sui-button sui-button-red"><i class="sui-icon-loader sui-loading" aria-hidden="true"></i> <?php esc_html_e( 'Log löschen', 'ps-live-debug' ); ?></button>
 							</div>
 							<div class="sui-col-md-4 sui-col-lg-4 text-center">
 								<label class="sui-toggle">
 									<input type="checkbox" id="toggle-auto-refresh">
 									<span class="sui-toggle-slider"></span>
+									<span class="sui-toggle-label"><?php esc_html_e( 'Auto Refresh Log', 'ps-live-debug' ); ?></span>
 								</label>
-								<label for="toggle-auto-refresh"><?php esc_html_e( 'Auto Refresh Log', 'ps-live-debug' ); ?></label>
 							</div>
 						</div>
-						<div class="sui-box-settings-row divider"></div>
-						<div class="sui-row mt30">
+						<div class="sui-row ps-live-debug-options">
 						<?php if ( ! PS_Live_Debug_Live_Debug::check_wp_config_backup() ) { ?>
 							<div class="sui-col-lg-12 text-center">
 								<button id="ps-live-debug-backup" type="button" class="sui-button sui-button-green"><i class="sui-icon-loader sui-loading" aria-hidden="true"></i> <?php esc_html_e( 'Backup wp-config und Optionen anzeigen', 'ps-live-debug' ); ?></button>
@@ -125,8 +126,8 @@ if ( ! class_exists( 'PS_Live_Debug_Live_Debug' ) ) {
 									<label class="sui-toggle">
 										<input type="checkbox" id="toggle-wp-debug" <?php echo ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? 'checked' : ''; ?> >
 										<span class="sui-toggle-slider"></span>
+										<span class="sui-toggle-label"><?php esc_html_e( 'WP Debug', 'ps-live-debug' ); ?></span>
 									</label>
-									<label for="toggle-wp-debug"><?php esc_html_e( 'WP Debug', 'ps-live-debug' ); ?></label>
 								</span>
 							</div>
 							<div class="sui-col-md-6 sui-col-lg-3 text-center">
@@ -134,8 +135,8 @@ if ( ! class_exists( 'PS_Live_Debug_Live_Debug' ) ) {
 									<label class="sui-toggle">
 										<input type="checkbox" id="toggle-script-debug" <?php echo ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? 'checked' : ''; ?> >
 										<span class="sui-toggle-slider"></span>
+										<span class="sui-toggle-label"><?php esc_html_e( 'Script Debug', 'ps-live-debug' ); ?></span>
 									</label>
-									<label for="toggle-script-debug"><?php esc_html_e( 'Script Debug', 'ps-live-debug' ); ?></label>
 								</span>
 							</div>
 							<div class="sui-col-md-6 sui-col-lg-3 text-center">
@@ -143,8 +144,8 @@ if ( ! class_exists( 'PS_Live_Debug_Live_Debug' ) ) {
 									<label class="sui-toggle">
 										<input type="checkbox" id="toggle-savequeries" <?php echo ( defined( 'SAVEQUERIES' ) && SAVEQUERIES ) ? 'checked' : ''; ?> >
 										<span class="sui-toggle-slider"></span>
+										<span class="sui-toggle-label"><?php esc_html_e( 'Abfragen speichern', 'ps-live-debug' ); ?></span>
 									</label>
-									<label for="toggle-savequeries"><?php esc_html_e( 'Abfragen speichern', 'ps-live-debug' ); ?></label>
 								</span>
 							</div>
 							<?php } ?>
@@ -732,8 +733,12 @@ if ( ! class_exists( 'PS_Live_Debug_Live_Debug' ) ) {
 		 *
 		 * @return string $debug_contents The content of debug.log
 		 */
-		public static function read_debug_log() {
+		public static function get_debug_log_contents() {
 			$log_file = get_option( 'PS_LIVE_DEBUG_log_file' );
+
+			if ( ! is_string( $log_file ) || empty( $log_file ) ) {
+				return esc_html__( 'Keine Logdatei ausgewählt.', 'ps-live-debug' );
+			}
 
 			if ( file_exists( $log_file ) ) {
 				if ( 2000000 > filesize( $log_file ) ) {
@@ -749,10 +754,18 @@ if ( ! class_exists( 'PS_Live_Debug_Live_Debug' ) ) {
 			} else {
 				// translators: %1$s log filename.
 				$debug_contents = sprintf( esc_html__( 'Could not find %1$s file.', 'ps-live-debug' ), basename( $log_file ) );
-
 			}
 
-			echo $debug_contents;
+			return $debug_contents;
+		}
+
+		/**
+		 * Send the selected log contents to the live viewer.
+		 *
+		 * @return void
+		 */
+		public static function read_debug_log() {
+			echo self::get_debug_log_contents();
 
 			wp_die();
 		}
@@ -796,31 +809,31 @@ if ( ! class_exists( 'PS_Live_Debug_Live_Debug' ) ) {
 		 * @return string json success / error with the response.
 		 */
 		public static function clear_debug_log() {
-			$nonce    = sanitize_text_field( $_POST['nonce'] );
-			$log_file = sanitize_text_field( $_POST['log'] );
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'Du hast keine Berechtigung für diese Aktion.', 'ps-live-debug' ) ), 403 );
+			}
+
+			$nonce    = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+			$log_file = isset( $_POST['log'] ) ? sanitize_text_field( wp_unslash( $_POST['log'] ) ) : '';
 
 			if ( ! wp_verify_nonce( $nonce, $log_file ) ) {
-				$response = array(
-					'message' => esc_html__( 'Could not validate nonce', 'ps-live-debug' ),
-				);
-				wp_send_json_error( $response );
+				wp_send_json_error( array( 'message' => esc_html__( 'Die Sicherheitsprüfung ist fehlgeschlagen. Bitte lade die Seite neu.', 'ps-live-debug' ) ), 403 );
 			}
 
-			if ( 'log' != substr( strrchr( $log_file, '.' ), 1 ) ) {
-				$response = array(
-					'message' => esc_html__( 'This is not a log file.', 'ps-live-debug' ),
-				);
-
-				wp_send_json_error( $response );
+			if ( 'log' !== strtolower( pathinfo( $log_file, PATHINFO_EXTENSION ) ) || ! is_file( $log_file ) ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'Die ausgewählte Logdatei wurde nicht gefunden.', 'ps-live-debug' ) ), 404 );
 			}
 
-			file_put_contents( $log_file, '' );
+			if ( ! is_writable( $log_file ) || false === file_put_contents( $log_file, '', LOCK_EX ) ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'Die Logdatei konnte nicht geleert werden. Bitte prüfe die Dateirechte.', 'ps-live-debug' ) ), 500 );
+			}
 
-			$response = array(
-				'message' => esc_html__( '.log was cleared', 'ps-live-debug' ),
+			wp_send_json_success(
+				array(
+					'message'  => esc_html__( 'Die Logdatei wurde geleert.', 'ps-live-debug' ),
+					'contents' => self::get_debug_log_contents(),
+				)
 			);
-
-			wp_send_json_success( $response );
 		}
 
 		/**
@@ -836,18 +849,24 @@ if ( ! class_exists( 'PS_Live_Debug_Live_Debug' ) ) {
 		 * @return string json success / error with the response.
 		 */
 		public static function delete_debug_log() {
-			$nonce    = sanitize_text_field( $_POST['nonce'] );
-			$log_file = sanitize_text_field( $_POST['log'] );
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'Du hast keine Berechtigung für diese Aktion.', 'ps-live-debug' ) ), 403 );
+			}
+
+			$nonce    = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+			$log_file = isset( $_POST['log'] ) ? sanitize_text_field( wp_unslash( $_POST['log'] ) ) : '';
 
 			if ( ! wp_verify_nonce( $nonce, $log_file ) ) {
-				wp_send_json_error();
+				wp_send_json_error( array( 'message' => esc_html__( 'Die Sicherheitsprüfung ist fehlgeschlagen. Bitte lade die Seite neu.', 'ps-live-debug' ) ), 403 );
 			}
 
-			if ( 'log' != substr( strrchr( $log_file, '.' ), 1 ) ) {
-				wp_send_json_error();
+			if ( 'log' !== strtolower( pathinfo( $log_file, PATHINFO_EXTENSION ) ) || ! is_file( $log_file ) ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'Die ausgewählte Logdatei wurde nicht gefunden.', 'ps-live-debug' ) ), 404 );
 			}
 
-			unlink( $log_file );
+			if ( ! is_writable( dirname( $log_file ) ) || ! unlink( $log_file ) ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'Die Logdatei konnte nicht gelöscht werden. Bitte prüfe die Dateirechte.', 'ps-live-debug' ) ), 500 );
+			}
 
 			PS_Live_Debug_Helper::create_debug_log();
 
@@ -855,7 +874,7 @@ if ( ! class_exists( 'PS_Live_Debug_Live_Debug' ) ) {
 
 			update_option( 'PS_LIVE_DEBUG_log_file', $log_file );
 
-			wp_send_json_success();
+			wp_send_json_success( array( 'message' => esc_html__( 'Die Logdatei wurde gelöscht.', 'ps-live-debug' ) ) );
 		}
 	}
 }

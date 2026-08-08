@@ -227,6 +227,23 @@
 	function scrollDebugAreaToBottom() {
 		debugArea.scrollTop( debugArea[0].scrollHeight );
 	}
+	function setLogActionStatus( message, isError ) {
+		responseHolder
+			.toggleClass( 'is-error', isError )
+			.text( message )
+			.prop( 'hidden', false );
+	}
+	function setLogButtonLoading( button, isLoading ) {
+		button.prop( 'disabled', isLoading );
+		button.find( '.sui-icon-loader' ).css( 'display', isLoading ? 'inline-block' : 'none' );
+	}
+	function getAjaxErrorMessage( response, fallback ) {
+		if ( response && response.data && response.data.message ) {
+			return response.data.message;
+		}
+
+		return fallback;
+	}
 	// Debug View
 	if ( debugArea.length ) {
 		// Restore auto-refresh toggle state from localStorage
@@ -242,7 +259,7 @@
 		
 		// Make the initial debug.log read.
 		$.post( ajaxurl, refreshData, function( response ) {
-			debugArea.html( response );
+			debugArea.val( response );
 			scrollDebugAreaToBottom();
 		} );
 		// Enable / Disable Auto Scroll
@@ -250,46 +267,64 @@
 			var checked = refreshToggle.is( ':checked' );
 			if ( checked ) {
 				$.post( ajaxurl, refreshData, function( response ) {
-					debugArea.html( response );
+					debugArea.val( response );
 					scrollDebugAreaToBottom();
 				} );
 			}
 		}, 2000 );
 		// Handle the clear button clicks.
 		clearButton.on( 'click', function( e ) {
-			var nonce = $( this ).data( 'nonce' ),
-				log   = $( this ).data( 'log' ),
+			var button = $( this ),
+				nonce  = button.data( 'nonce' ),
+				log    = button.data( 'log' ),
 				data;
 			e.preventDefault();
-			$( this ).find( '.sui-icon-loader' ).css( 'display', 'inline-block' );
+			responseHolder.prop( 'hidden', true );
+			setLogButtonLoading( button, true );
 			data = {
 				'action': 'ps-live-debug-clear-debug-log',
 				'log': log,
 				'nonce': nonce
 			};
-			$.post( ajaxurl, data, function( response ) {
+			$.post( ajaxurl, data ).done( function( response ) {
 				if ( response.success ) {
-					$( clearButton ).find( '.sui-icon-loader' ).css( 'display', 'none' );
+					debugArea.val( response.data.contents );
 					scrollDebugAreaToBottom();
+					setLogActionStatus( response.data.message, false );
+				} else {
+					setLogActionStatus( getAjaxErrorMessage( response, 'Die Logdatei konnte nicht geleert werden.' ), true );
 				}
+			} ).fail( function( xhr ) {
+				setLogActionStatus( getAjaxErrorMessage( xhr.responseJSON, 'Die Anfrage zum Leeren der Logdatei ist fehlgeschlagen.' ), true );
+			} ).always( function() {
+				setLogButtonLoading( button, false );
 			} );
 		} );
 		// Handle the delete button clicks.
 		deleteButton.on( 'click', function( e ) {
-			var nonce = $( this ).data( 'nonce' ),
-				log   = $( this ).data( 'log' ),
+			var button = $( this ),
+				nonce  = button.data( 'nonce' ),
+				log    = button.data( 'log' ),
 				data;
 			e.preventDefault();
-			$( this ).find( '.sui-icon-loader' ).css( 'display', 'inline-block' );
+			responseHolder.prop( 'hidden', true );
+			setLogButtonLoading( button, true );
 			data = {
 				'action': 'ps-live-debug-delete-debug-log',
 				'log': log,
 				'nonce': nonce
-			}
-			$.post( ajaxurl, data, function( response ) {
+			};
+			$.post( ajaxurl, data ).done( function( response ) {
 				if ( response.success ) {
-					window.location.href = window.location.href;
+					setLogActionStatus( response.data.message, false );
+					window.location.reload();
+				} else {
+					setLogActionStatus( getAjaxErrorMessage( response, 'Die Logdatei konnte nicht gelöscht werden.' ), true );
 				}
+			} ).fail( function( xhr ) {
+				setLogActionStatus( getAjaxErrorMessage( xhr.responseJSON, 'Die Anfrage zum Löschen der Logdatei ist fehlgeschlagen.' ), true );
+			} ).always( function() {
+				setLogButtonLoading( button, false );
 			} );
 		} );
 		// Create wp-config backup
@@ -300,7 +335,7 @@
 				if ( response.success ) {
 					window.location.href = window.location.href;
 				} else {
-					responseHolder.html( response.data.message );
+					setLogActionStatus( response.data.message, true );
 				}
 			} );
 		} );
@@ -312,7 +347,7 @@
 				if ( response.success ) {
 					window.location.href = window.location.href;
 				} else {
-					responseHolder.html( response.data.message );
+					setLogActionStatus( response.data.message, true );
 				}
 			} );
 		} );
@@ -422,7 +457,7 @@
 			safety.hide();
 			$.post( ajaxurl, acceptRiskData, function( response ) {
 				if ( ! response.success ) {
-					responseHolder.html( response.data.message );
+					setLogActionStatus( response.data.message, true );
 				}
 			} );
 		} );

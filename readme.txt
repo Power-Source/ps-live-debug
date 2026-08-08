@@ -3,8 +3,8 @@ Contributors: PSOURCE
 Tags: debug, classicpress, wordpress, psource
 Requires at least: 4.9
 Tested up to: Wordpress 6.8.1
-ClassicPress: 2.6.0
-Stable tag: 1.0.2
+ClassicPress: 2.7.0
+Stable tag: 1.0.3
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -26,6 +26,19 @@ PSOURCE Live Debug ist ein praktisches Plugin für ClassicPress und WordPress, d
 Ideal für Entwickler und Administratoren, die Fehler schnell und unkompliziert analysieren möchten.
 
 == ChangeLog ==
+
+= 1.0.3 =
+
+* Shared UI auf Version 2.9.6 aktualisiert und Styles korrekt eingebunden
+* Select2-Laufzeitabhängigkeit ergänzt und vor dem Shared-UI-Core geladen
+* Fehlerhafte Entfernung der ClassicPress-jQuery-UI-Abhängigkeiten entfernt
+* Plugin-Skripte von optionalen Admin-Komponenten entkoppelt
+* Loganzeige mit serverseitigem Fallback und zuverlässiger AJAX-Aktualisierung repariert
+* Funktionen zum Leeren und Löschen von Logdateien repariert und abgesichert
+* Sichtbare Erfolgs-, Fehler- und Ladezustände für Logaktionen ergänzt
+* Datei-, Berechtigungs-, Nonce- und Schreibrechteprüfungen verbessert
+* Switch-Markup, Beschriftungen, Abstände und responsives Admin-Layout überarbeitet
+* Cache-Busting für pluginlokale CSS- und JavaScript-Dateien ergänzt
 
 = 1.0.2 =
 

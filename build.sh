@@ -13,6 +13,7 @@ echo "$HEADER" > assets/sui/js/shared-ui.temp.js
 # Add all source files in the correct order
 for file in \
   assets/sui/js/_src/a11y-dialog.js \
+  assets/sui/js/_src/admin-components.js \
   assets/sui/js/_src/accordion.js \
   assets/sui/js/_src/clipboard.js \
   assets/sui/js/_src/code-snippet.js \

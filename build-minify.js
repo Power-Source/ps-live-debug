@@ -17,6 +17,7 @@ const distDir = 'assets/sui/js';
 // Files to minify
 const files = [
   'a11y-dialog.js',
+  'admin-components.js',
   'accordion.js',
   'clipboard.js',
   'code-snippet.js',

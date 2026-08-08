@@ -1,0 +1,158 @@
+/**
+ * Select2 to Choices.js CSS Compatibility
+ * 
+ * Additional styling to make Choices.js look and behave like Select2
+ * for backward compatibility
+ */
+
+/* Ensure Choices container has similar dimensions to Select2 */
+.choices.select2-container {
+    box-sizing: border-box;
+    display: inline-block;
+    position: relative;
+    vertical-align: middle;
+    width: 100% !important;
+}
+
+/* Match Select2 inner container */
+.choices .choices__inner.select2-selection {
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+/* Open state styling */
+.choices.select2-container--open .choices__inner {
+    border-color: #5b9dd9;
+    box-shadow: 0 0 5px rgba(91, 157, 217, 0.5);
+}
+
+/* Dropdown styling to match Select2 */
+.choices .choices__list--dropdown.select2-results {
+    border: 1px solid #aaa;
+    border-top: none;
+    background-color: #fff;
+    margin-top: -1px;
+    z-index: 9999;
+}
+
+/* Results option styling */
+.choices .choices__item--selectable.select2-results__option {
+    padding: 8px;
+}
+
+.choices .choices__item--selectable.select2-results__option:hover,
+.choices .choices__item--selectable.select2-results__option.is-highlighted {
+    background-color: #5897fb;
+    color: #fff;
+}
+
+/* Selected item in dropdown */
+.choices .choices__item--selectable.is-selected {
+    background-color: #ddd;
+}
+
+/* Multiple select items */
+.choices[data-type*="select-multiple"] .choices__item {
+    background-color: #5897fb;
+    border: 1px solid #2e7bcc;
+    border-radius: 3px;
+    color: #fff;
+    display: inline-block;
+    margin: 3px 5px 3px 0;
+    padding: 3px 8px;
+}
+
+/* Remove button styling */
+.choices__button {
+    background-color: transparent;
+    background-image: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    margin-left: 4px;
+    opacity: 0.7;
+    padding: 0;
+}
+
+.choices__button:hover {
+    opacity: 1;
+}
+
+/* Placeholder styling */
+.choices .choices__placeholder {
+    color: #999;
+    opacity: 1;
+}
+
+/* Focus state */
+.choices.is-focused .choices__inner {
+    border-color: #5b9dd9;
+    outline: none;
+}
+
+/* Disabled state */
+.choices.is-disabled .choices__inner {
+    background-color: #eee;
+    cursor: not-allowed;
+}
+
+/* Search input */
+.choices .choices__input {
+    background-color: transparent;
+    border: none;
+    color: #333;
+    font-size: 14px;
+    margin-bottom: 0;
+    padding: 4px;
+}
+
+.choices .choices__input:focus {
+    outline: none;
+}
+
+/* Loading spinner (if needed) */
+.choices.is-loading .choices__inner::after {
+    content: '';
+    position: absolute;
+    right: 11px;
+    top: 50%;
+    margin-top: -8px;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    border-top-color: #333;
+    animation: choices-spinner 0.6s linear infinite;
+}
+
+@keyframes choices-spinner {
+    to { transform: rotate(360deg); }
+}
+
+/* WordPress Admin compatibility */
+.wp-admin .choices {
+    max-width: none;
+}
+
+.wp-admin .choices__inner {
+    min-height: 30px;
+}
+
+/* Form field integration */
+.powerform-field .choices {
+    width: 100%;
+}
+
+/* Ensure dropdowns appear above other elements */
+.choices__list--dropdown {
+    z-index: 999999 !important;
+}
+
+/* Fix for modal dialogs */
+.sui-modal .choices__list--dropdown,
+.modal .choices__list--dropdown {
+    z-index: 1000000 !important;
+}

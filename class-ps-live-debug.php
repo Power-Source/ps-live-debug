@@ -1,12 +1,12 @@
 <?php //phpcs:ignore
 /**
  *
- * Plugin Name: PSOURCE Live Debug
- * Plugin URI: https://power-source.github.io/ps-live-debug/
+ * Plugin Name: PS Live Debug
+ * Plugin URI: https://psource.eimen.net/wiki/ps-live-debug-dokumentation/
  * Description: Aktiviert das Debuggen und fügt dem ClassicPress-Admin einen Bildschirm hinzu, um das debug.log anzuzeigen.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: PSOURCE
- * Author URI: https://github.com/Power-Source
+ * Author URI: https://psource.eimen.net/
  * License: GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain: ps-live-debug
@@ -74,7 +74,6 @@ if ( ! class_exists( 'PS_Live_Debug' ) ) {
 		 */
 		public function init() {
 			add_action( 'init', array( 'PS_Live_Debug', 'create_menus' ) );
-			add_action( 'wp_default_scripts', array( 'PS_Live_Debug', 'remove_jquery_ui_scripts' ), 10 );
 			add_action( 'admin_enqueue_scripts', array( 'PS_Live_Debug', 'enqueue_scripts_styles' ) );
 			add_action( 'wp_ajax_ps-live-debug-accept-risk', array( 'PS_Live_Debug', 'accept_risk' ) );
 		}
@@ -179,75 +178,118 @@ if ( ! class_exists( 'PS_Live_Debug' ) ) {
 		 */
 		public static function enqueue_scripts_styles( $hook ) {
 			if ( 'toplevel_page_ps-live-debug' === $hook ) {
+				$base_url        = plugin_dir_url( __FILE__ );
+				$base_path       = plugin_dir_path( __FILE__ );
+				$sui_version     = '2.9.6';
+				$styles_version  = filemtime( $base_path . 'assets/styles.css' );
+				$scripts_version = filemtime( $base_path . 'assets/scripts.js' );
+
 				wp_enqueue_style(
 					'wphb-psource-sui',
-					plugin_dir_url( __FILE__ ) . 'assets/sui/css/shared-ui.min.css',
-					'2.2.10'
+					$base_url . 'assets/sui/css/shared-ui.min.css',
+					array(),
+					$sui_version
+				);
+				wp_enqueue_script(
+					'ps-live-debug-select2',
+					$base_url . 'assets/sui/js/vendors/select2.full.js',
+					array( 'jquery' ),
+					$sui_version,
+					true
 				);
 				wp_enqueue_script(
 					'wphb-psource-sui',
-					plugin_dir_url( __FILE__ ) . 'assets/sui/js/shared-ui.min.js',
-					array( 'jquery' ),
-					'2.2.10',
+					$base_url . 'assets/sui/js/shared-ui.min.js',
+					array( 'jquery', 'ps-live-debug-select2' ),
+					$sui_version,
 					true
 				);
+
 				wp_enqueue_style(
-					'ps-live-debug',
-					plugin_dir_url( __FILE__ ) . 'assets/styles.css',
+					'ps-live-debug-choices',
+					$base_url . 'assets/sui/css/vendors/choices.min.css',
 					array( 'wphb-psource-sui' ),
 					PS_LIVE_DEBUG_VERSION
 				);
-				wp_enqueue_script(
-					'ps-live-debug',
-					plugin_dir_url( __FILE__ ) . 'assets/scripts.js',
+				wp_enqueue_style(
+					'ps-live-debug-choices-compat',
+					$base_url . 'assets/sui/css/vendors/choices-compat.css',
+					array( 'ps-live-debug-choices' ),
+					PS_LIVE_DEBUG_VERSION
+				);
+				wp_enqueue_style(
+					'ps-live-debug-daterangepicker',
+					$base_url . 'assets/sui/css/vendors/daterangepicker.min.css',
 					array( 'wphb-psource-sui' ),
+					PS_LIVE_DEBUG_VERSION
+				);
+
+				wp_enqueue_script(
+					'ps-live-debug-sortable',
+					$base_url . 'assets/sui/js/vendors/sortable.min.js',
+					array( 'jquery' ),
 					PS_LIVE_DEBUG_VERSION,
 					true
 				);
+				wp_enqueue_script(
+					'ps-live-debug-choices',
+					$base_url . 'assets/sui/js/vendors/choices.min.js',
+					array( 'jquery' ),
+					PS_LIVE_DEBUG_VERSION,
+					true
+				);
+				wp_enqueue_script(
+					'ps-live-debug-moment',
+					$base_url . 'assets/sui/js/vendors/moment.min.js',
+					array( 'jquery' ),
+					PS_LIVE_DEBUG_VERSION,
+					true
+				);
+				wp_enqueue_script(
+					'ps-live-debug-daterangepicker',
+					$base_url . 'assets/sui/js/vendors/daterangepicker.min.js',
+					array( 'jquery', 'ps-live-debug-moment' ),
+					PS_LIVE_DEBUG_VERSION,
+					true
+				);
+				wp_enqueue_style( 'wp-color-picker' );
+				wp_enqueue_script( 'wp-color-picker' );
+				wp_enqueue_script(
+					'ps-live-debug-wp-color-picker-alpha',
+					$base_url . 'assets/sui/js/vendors/wp-color-picker-alpha.min.js',
+					array( 'jquery', 'wp-color-picker' ),
+					PS_LIVE_DEBUG_VERSION,
+					true
+				);
+				wp_enqueue_script(
+					'ps-live-debug-admin-components',
+					$base_url . 'assets/sui/js/admin-components.js',
+					array(
+						'jquery',
+						'wphb-psource-sui',
+						'ps-live-debug-sortable',
+						'ps-live-debug-choices',
+						'ps-live-debug-daterangepicker',
+						'ps-live-debug-wp-color-picker-alpha'
+					),
+					PS_LIVE_DEBUG_VERSION,
+					true
+				);
+
+				wp_enqueue_style(
+					'ps-live-debug',
+					$base_url . 'assets/styles.css',
+					array( 'wphb-psource-sui', 'ps-live-debug-choices', 'ps-live-debug-daterangepicker' ),
+					$styles_version
+				);
+				wp_enqueue_script(
+					'ps-live-debug',
+					$base_url . 'assets/scripts.js',
+					array( 'jquery', 'wphb-psource-sui' ),
+					$scripts_version,
+					true
+				);
 				add_filter( 'admin_body_class', array( 'PS_Live_Debug', 'admin_body_classes' ) );
-			}
-		}
-
-		/**
-		 * Remove jQuery UI scripts from WordPress registry.
-		 * Prevents deprecated jQuery UI warnings in ClassicPress 2.2.0+.
-		 *
-		 * @param WP_Scripts $scripts The WP_Scripts object.
-		 *
-		 * @return void
-		 */
-		public static function remove_jquery_ui_scripts( $scripts ) {
-			// List of jQuery UI scripts to remove from the registry
-			$ui_scripts = array(
-				'jquery-ui',
-				'jquery-ui-core',
-				'jquery-ui-menu',
-				'jquery-ui-position',
-				'jquery-ui-widget',
-				'jquery-ui-mouse',
-				'jquery-ui-draggable',
-				'jquery-ui-droppable',
-				'jquery-ui-resizable',
-				'jquery-ui-selectable',
-				'jquery-ui-sortable',
-				'jquery-ui-accordion',
-				'jquery-ui-autocomplete',
-				'jquery-ui-button',
-				'jquery-ui-datepicker',
-				'jquery-ui-dialog',
-				'jquery-ui-slider',
-				'jquery-ui-tabs',
-				'jquery-ui-progressbar',
-				'jquery-ui-spinbutton',
-				'jquery-ui-tooltip',
-				'jquery-ui-spinner',
-			);
-
-			// Remove all jQuery UI scripts before they can be enqueued
-			foreach ( $ui_scripts as $script_handle ) {
-				if ( isset( $scripts->registered[ $script_handle ] ) ) {
-					unset( $scripts->registered[ $script_handle ] );
-				}
 			}
 		}
 
@@ -259,7 +301,7 @@ if ( ! class_exists( 'PS_Live_Debug' ) ) {
 		 * @return string $classes Updated classes list including the Shared-UI classes.
 		 */
 		public static function admin_body_classes( $classes ) {
-			$classes .= ' sui-2-2-10 ';
+			$classes .= ' sui-2-9-6 ';
 
 			return $classes;
 		}
